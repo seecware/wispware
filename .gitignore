@@ -1,0 +1,60 @@
+############################################
+# 🔐 Secrets / Entornos
+############################################
+.env
+.env.*
+!.env.example
+
+############################################
+# 🐳 Docker
+############################################
+docker-compose.override.yml
+*.log
+
+############################################
+# 🗄️ Volúmenes / Persistencia
+############################################
+mysql_data/
+docker/mysql/data/
+docker/redis/data/
+
+############################################
+# ⚙️ Laravel (runtime)
+############################################
+/vendor
+/node_modules
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+bootstrap/cache/*.php
+
+############################################
+# 🧪 Testing / Coverage
+############################################
+/coverage
+.phpunit.result.cache
+
+############################################
+# 🧰 IDE / SO
+############################################
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+############################################
+# 🧾 Composer / NPM
+############################################
+composer.phar
+npm-debug.log*
+yarn-error.log*
+
+############################################
+# 🧠 Misc
+############################################
+*.pid
+*.tmp
