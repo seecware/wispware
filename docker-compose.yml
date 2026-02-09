@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: services/php/Dockerfile
+    container_name: wispware-app
+    working_dir: /var/www/html
+    user: "${UID}:${GID}"
+    volumes:
+      - ./src:/var/www/html
+    environment:
+      COMPOSER_HOME: /tmp/.composer
+    depends_on:
+      - mysql
+    networks:
+      - wispware
+
+  node:
+    build:
+      context: .
+      dockerfile: services/node/Dockerfile
+    container_name: wispware-node
+    working_dir: /var/www/html
+    user: "${UID}:${GID}"
+    volumes:
+      - ./src:/var/www/html
+    tty: true
+    networks:
+      - wispware
+
+  nginx:
+    image: nginx:alpine
+    container_name: wispware-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./services/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - wispware
+
+  mysql:
+    image: mysql:8.0
+    container_name: wispware-mysql
+    environment:
+      MYSQL_DATABASE: wispware
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: wispware
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - wispware
+
+networks:
+  wispware:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
