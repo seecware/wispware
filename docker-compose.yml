@@ -17,6 +17,7 @@ services:
       - mysql
     networks:
       - wispware
+    restart: unless-stopped
 
   node:
     build:
@@ -30,6 +31,7 @@ services:
     tty: true
     networks:
       - wispware
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
@@ -43,6 +45,7 @@ services:
       - app
     networks:
       - wispware
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.0
@@ -56,6 +59,7 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - wispware
+    restart: unless-stopped
 
 networks:
   wispware:
