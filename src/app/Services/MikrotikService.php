@@ -6,22 +6,41 @@ use RouterOS\Client;
 use RouterOS\Query;
 use Exception;
 
+use App\Models\MikrotikSetting;
+
 Class MikrotikService {
     protected ?Client $client = null;
 
-    public function connect(): self
-    {
-        if (!$this->client) {
-            $this->client = new Client([
-                'host' => config('services.mikrotik.host', env('MIKROTIK_HOST')),
-                'user' => config('services.mikrotik.user', env('MIKROTIK_USER')),
-                'pass' => config('services.mikrotik.pass', env('MIKROTIK_PASS')),
-                'port' => (int) config('services.mikrotik.port', env('MIKROTIK_PORT', 8728)),
-            ]);
-        }
+public function connect(): self
+{
+    if (!$this->client) {
 
-        return $this;
+        $setting = MikrotikSetting::first();
+
+        $this->client = new Client([
+            'host' => $setting?->host
+                ?? config('services.mikrotik.host', env('MIKROTIK_HOST')),
+
+            'user' => $setting?->user
+                ?? config('services.mikrotik.user', env('MIKROTIK_USER')),
+
+            'pass' => config(
+                'services.mikrotik.pass',
+                env('MIKROTIK_PASS')
+            ),
+
+            'port' => (int) (
+                $setting?->port
+                ?? config(
+                    'services.mikrotik.port',
+                    env('MIKROTIK_PORT', 8728)
+                )
+            ),
+        ]);
     }
+
+    return $this;
+}
 
     public function getSystemResource(): array
     {
@@ -95,6 +114,13 @@ public function existsMacInBridgeFilter(string $mac): bool
     $result = $this->client->query($query)->read();
 
     return !empty($result);
+}
+
+public function getIpNeighbors(): array
+{
+    $this->connect();
+    $query = new Query('/ip/neighbor/print');
+    return $this->client->query($query)->read();
 }
 
 }
