@@ -1,6 +1,6 @@
 <div class="mt-6 pt-6 border-t border-slate-700">
     <h3 class="text-base font-bold text-sky-400 mb-4 flex items-center gap-2">
-        ⚡ Agregar Regla a Bridge Filter
+       Sign up device
     </h3>
 
     @if ($mensaje)
@@ -12,11 +12,11 @@
     <form wire:submit="guardarFiltro" class="space-y-4">
         <!-- Input: Nombre de la Regla (Comment) -->
         <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre / Identificador de la regla:</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Name:</label>
             <input 
                 type="text" 
                 wire:model="comment" 
-                placeholder="Ej. Cliente_Juan_Perez" 
+                placeholder="Your Name" 
                 class="w-full px-3 py-2 bg-slate-900 text-slate-100 placeholder-slate-500 border border-slate-700 rounded-md focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-sm font-mono @error('comment') border-rose-500 @enderror"
             >
             @error('comment') 
@@ -25,24 +25,25 @@
         </div>
 
         <!-- Input: Dirección MAC -->
-        <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Dirección MAC Detectada:</label>
-            <input 
-                type="text" 
-                wire:model="mac" 
-                readonly
-                class="w-full px-3 py-2 bg-slate-950 text-yellow-400 border rounded-md focus:outline-none text-sm font-mono cursor-not-allowed select-none @if($existeEnMikrotik) border-rose-500/60 text-rose-400 @else border-slate-700 @endif"
-            >
-            @if ($existeEnMikrotik)
-                <span class="text-xs text-rose-400 mt-1 block font-semibold flex items-center gap-1">
-                    🚫 Esta MAC ya se encuentra registrada en las reglas de Bridge Filter.
-                </span>
-            @endif
-        </div>
+<div>
+    <label class="block text-xs font-semibold text-gray-600 bg-yellow-100 px-2 py-1 rounded mb-1">Detected MAC address:</label>
+    <input
+        type="text" 
+        wire:model="mac"
+        readonly
+        class="block w-full text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-300 rounded px-2 py-1 mb-1 focus:outline-none"
+    />
+
+    @if ($existeEnMikrotik)
+        <span class="text-xs text-rose-400 mt-1 block font-semibold flex items-center gap-1">
+            This MAC ADDRESS is already up!
+        </span>
+    @endif
+</div>
 
         <!-- Select: Packet Mark (Dinamico) -->
         <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Packet Mark (Marca de paquete):</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Packet Mark:</label>
             <select 
                 wire:model="packetMark"
                 class="w-full px-3 py-2 bg-slate-900 text-sky-300 border border-slate-700 rounded-md focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-sm font-mono cursor-pointer"
@@ -78,12 +79,12 @@
         >
             <span wire:loading.remove>
                 @if($existeEnMikrotik)
-                    MAC Ya Filtrada
+                    Already signup
                 @else
-                    Crear Filtro en MikroTik
+                    Sign up device
                 @endif
             </span>
-            <span wire:loading>Enviando comando a RouterOS...</span>
+            <span wire:loading>Sending data to server...</span>
         </button>
     </form>
 </div>

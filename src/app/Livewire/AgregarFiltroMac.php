@@ -38,7 +38,7 @@ class AgregarFiltroMac extends Component
         $response = $mikrotik->addBridgeFilterMark($this->mac, $this->comment, $this->packetMark);
 
         $this->reset('comment');
-        $this->mensaje = 'Filtro agregado correctamente en el MikroTik.';
+        $this->mensaje = 'Done!';
         $this->existeEnMikrotik = true;
     }
 

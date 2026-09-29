@@ -13,6 +13,7 @@ class InfrastructureDevice extends Model
         'mac_address',
         'status',
         'comment',
+        'photo_path',
     ];
 
     public function deviceManagementInfo() {

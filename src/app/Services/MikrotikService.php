@@ -123,4 +123,14 @@ public function getIpNeighbors(): array
     return $this->client->query($query)->read();
 }
 
+public function getQueueTrees(): array
+{
+    $this->connect();
+    
+    $query = new Query('/queue/tree/print');
+    
+    // Retorna array de colas con 'name', 'comment', 'parent', etc.
+    return $this->client->query($query)->read();
+}
+
 }

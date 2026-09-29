@@ -37,7 +37,9 @@
 
                     <div class="space-y-1 text-sm">
                         <div>
-                            <a href="http://{{ $device['address'] ?? 'N/A' }}" target="_blank" rel="noopener noreferrer" class="font-medium">IP: {{ $device['address'] ?? 'N/A' }}</a>
+                             <x-filament::badge color="info">
+                                <a href="http://{{ $device['address'] ?? 'N/A' }}" target="_blank" rel="noopener noreferrer" class="font-medium">IP: {{ $device['address'] ?? 'N/A' }}</a>
+                            </x-filament::badge>
                         </div>
 
                         <div>

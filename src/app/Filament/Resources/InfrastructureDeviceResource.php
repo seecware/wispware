@@ -23,9 +23,19 @@ class InfrastructureDeviceResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('brand')
-                    ->required()
-                    ->maxLength(50),
+                Forms\Components\Select::make('brand')
+                    ->options(
+                        [
+                            'TP-Link'=>'TP Link',
+                            'Mercusys'=>'Mercusys',
+                            'Ubiquiti'=>'Ubiquiti',
+                            'Mikrotik'=>'Mikrotik',
+                            'Generic FO'=>'Generic Fiber Media Converter',
+                            'Starlink'=>'Starlink',
+                            'Cisco'=>'Cisco',
+                        ]
+                    )
+                    ->required(),
                 Forms\Components\TextInput::make('model')
                     ->required()
                     ->maxLength(50),
@@ -36,11 +46,26 @@ class InfrastructureDeviceResource extends Resource
                     ->required()
                     ->rule('mac_address')
                     ->maxLength(17),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(30),
+                Forms\Components\Select::make('status')
+                    ->options(
+                        [
+                            'New'=>'Installed New',
+                            'Used'=>'Used',
+                            'Transfer'=>'Installed from other site.'
+                        ]
+                    )
+                    ->required(),
                 Forms\Components\TextInput::make('comment')
                     ->maxLength(255),
+                Forms\Components\FileUpload::make('photo_path')
+                    ->label('Photo Evidence')
+                    ->image()
+                    ->disk('public')
+                    ->imageEditor('false')
+                    ->directory('devices-evidence')
+                    ->visibility('public')
+                    ->maxSize(10240)
+                    ->nullable(),
             ]);
     }
 
@@ -68,6 +93,12 @@ class InfrastructureDeviceResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('comment')
                     ->searchable(),
+                Tables\Columns\ImageColumn::make('photo_path')
+                    ->label('Foto')
+                    ->circular()
+                    ->size(50)
+                    ->checkFileExistence(false)
+                    ->defaultImageUrl(url('/images/placeholder-device.png')),
             ])
             ->filters([
                 //

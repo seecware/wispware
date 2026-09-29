@@ -6,7 +6,7 @@
 
         <div class="mt-6">
             <x-filament::button type="submit">
-                Guardar configuración
+                Upload Configuration
             </x-filament::button>
         </div>
 

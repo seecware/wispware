@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>WispWare</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -44,7 +44,7 @@
 
                     <main class="mt-6">
                         <div style="background: #1e293b; color: #f8fafc; padding: 20px; border-radius: 8px; font-family: monospace; max-width: 600px; margin: 20px auto;">
-    <h2 style="color: #38bdf8; margin-top: 0;">📡 Información del Cliente (Wispware)</h2>
+    <h2 style="color: #38bdf8; margin-top: 0;">📡 Información del Cliente</h2>
     <p><strong>IP Local:</strong> <span style="color: #4ade80;">{{ $clientIp }}</span></p>
     <p><strong>Dirección MAC:</strong> <span style="color: #facc15;">{{ $clientMac }}</span></p>
     <p><strong>Navegador / Dispositivo:</strong><br><small style="color: #94a3b8;">{{ $userAgent }}</small></p>
