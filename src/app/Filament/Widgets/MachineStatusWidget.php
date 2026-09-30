@@ -56,21 +56,17 @@ class MachineStatusWidget extends ChartWidget
                 ->orderBy('recorded_at')
                 ->get();
 
-            // Cálculo diferencial
             $diffData = [];
-            $previousValue = null;
+            $previousLog = null;
 
             foreach ($logs as $log) {
-                $currentValue = (float) $log->consumption_gb;
-
-                if ($previousValue === null) {
+                if ($previousLog === null) {
                     $diffData[] = 0;
                 } else {
-                    $diff = $currentValue - $previousValue;
-                    $diffData[] = $diff < 0 ? 0 : round($diff, 4);
+                    $diffData[] = $this->calculateNormalizedDiff($previousLog, $log);
                 }
 
-                $previousValue = $currentValue;
+                $previousLog = $log;
             }
 
             return [
@@ -117,21 +113,17 @@ class MachineStatusWidget extends ChartWidget
             $color = $colors[$colorIndex % count($colors)];
             $isDownload = ($queueName === 'Download');
 
-            // Cálculo diferencial por cliente
             $diffData = [];
-            $previousValue = null;
+            $previousLog = null;
 
             foreach ($queueLogs as $log) {
-                $currentValue = (float) $log->consumption_gb;
-
-                if ($previousValue === null) {
+                if ($previousLog === null) {
                     $diffData[] = 0;
                 } else {
-                    $diff = $currentValue - $previousValue;
-                    $diffData[] = $diff < 0 ? 0 : round($diff, 4);
+                    $diffData[] = $this->calculateNormalizedDiff($previousLog, $log);
                 }
 
-                $previousValue = $currentValue;
+                $previousLog = $log;
             }
 
             $datasets[] = [
@@ -170,12 +162,50 @@ class MachineStatusWidget extends ChartWidget
         ];
     }
 
+    /**
+     * Calcula la diferencia normalizada en base al tiempo real transcurrido entre muestras.
+     */
+    private function calculateNormalizedDiff(ConsumptionLog $previousLog, ConsumptionLog $currentLog): float
+    {
+        $currentValue = (float) $currentLog->consumption_gb;
+        $previousValue = (float) $previousLog->consumption_gb;
+
+        // 1. Manejo de reinicio en MikroTik o datos corruptos
+        if ($currentValue < $previousValue) {
+            return 0;
+        }
+
+        $rawDiff = $currentValue - $previousValue;
+
+        // 2. Tiempo transcurrido en minutos entre ambos registros
+        $minutesPassed = $previousLog->recorded_at->diffInMinutes($currentLog->recorded_at);
+
+        // Si la muestra es instantánea (menos de 1 min), retornamos la diferencia directa
+        if ($minutesPassed <= 0) {
+            return round($rawDiff, 4);
+        }
+
+        // 3. CIRCUIT BREAKER (Apagones largos o mantenimientos > 20 minutos)
+        // Si la diferencia de tiempo es muy grande, descartamos el pico y reajustamos en 0.
+        if ($minutesPassed > 20) {
+            return 0;
+        }
+
+        // 4. NORMALIZACIÓN AL INTERVALO ESTÁNDAR (5 MINUTOS)
+        // Si el scheduler se retrasó un poco (ej. pasaron 10 min en lugar de 5),
+        // dividimos la diferencia entre los minutos reales y normalizamos a una ventana de 5 min.
+        $diffPerMinute = $rawDiff / $minutesPassed;
+        $normalizedDiff = $diffPerMinute * 5;
+
+        return round($normalizedDiff, 4);
+    }
+
     protected function getType(): string
     {
         return 'line';
     }
 
-protected function getOptions(): array
+    protected function getOptions(): array
     {
         return [
             'plugins' => [
@@ -183,8 +213,8 @@ protected function getOptions(): array
                     'display' => true,
                     'position' => 'bottom',
                     'labels' => [
-                        'usePointStyle' => true,        // <--- Cambia el rectángulo feo por un círculo
-                        'pointStyle' => 'circle',       // <--- Forma redonda limpia
+                        'usePointStyle' => true,
+                        'pointStyle' => 'circle',
                         'boxWidth' => 8,
                         'boxHeight' => 8,
                         'padding' => 20,
