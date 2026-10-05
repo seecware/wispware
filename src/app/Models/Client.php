@@ -8,6 +8,7 @@ class Client extends Model
 {
     protected $fillable = [
         'name',
+        'payment_ammmount',
         'f_lastname',
         'm_lastname',
         'unified_sys_id',

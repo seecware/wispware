@@ -29,6 +29,12 @@ class ClientResource extends Resource
                 Forms\Components\TextInput::make('f_lastname')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('payment_ammount')
+                    ->label('Payment ammount')
+                    ->prefix('$ ')
+                    ->placeholder('400.00')
+                    ->required()
+                    ->numeric(),
                 Forms\Components\TextInput::make('m_lastname')
                     ->required()
                     ->maxLength(255),
@@ -45,9 +51,15 @@ class ClientResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(10),
-                Forms\Components\TextInput::make('photo_path')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\FileUpload::make('photo_path')
+                    ->label('Client Photo')
+                    ->image()
+                    ->disk('public')
+                    ->imageEditor('false')
+                    ->directory('clients-photo')
+                    ->visibility('public')
+                    ->maxSize(10240)
+                    ->nullable(),
                 Forms\Components\TextInput::make('notes')
                     ->required()
                     ->maxLength(255),
@@ -60,21 +72,24 @@ class ClientResource extends Resource
     {
         return $table
             ->columns([
+                                Tables\Columns\ImageColumn::make('photo_path')
+                    ->label('Client')
+                    ->circular()
+                    ->size(50)
+                    ->checkFileExistence(false)
+                    ->defaultImageUrl(url('/images/placeholder-client.png'))
+                    ->extraImgAttributes([
+        'class' => 'transition-transform duration-300 ease-in-out hover:scale-150 hover:z-10 relative cursor-pointer',
+    ]),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('f_lastname')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('m_lastname')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unified_sys_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('assigned_speed_kb')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('address')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('photo_path')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('notes')
                     ->searchable(),

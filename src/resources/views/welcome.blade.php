@@ -4,7 +4,15 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>WispWare</title>
+        <title>Seecware</title>
+
+        <script>
+            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -28,12 +36,12 @@
                 Dashboard
             </a>
         @else
-            <a href="{{ route('login') }}" class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-white/70 focus:outline-none">
+            <a href="{{ route('login') }}" class="rounded-md px-3 py-2 text-gray-700 dark:text-gray-300 ring-1 ring-transparent transition hover:text-white/70 focus:outline-none">
                 Log in
             </a>
 
             @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-white/70 focus:outline-none">
+                <a href="{{ route('register') }}" class="rounded-md px-3 py-2 text-gray-700 dark:text-gray-300 ring-1 ring-transparent transition hover:text-white/70 focus:outline-none">
                     Register
                 </a>
             @endif
