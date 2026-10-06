@@ -45,7 +45,9 @@ class MachineStatusWidget extends ChartWidget
             $query->where('queue_name', $this->filter);
         }
 
-        $allLogs = $query->orderBy('recorded_at')->get();
+        $allLogs = $query->orderBy('recorded_at')
+                        ->whereRaw('MOD(id, 100) < 10')
+                        ->get();
 
         if ($allLogs->isEmpty()) {
             return ['datasets' => []];

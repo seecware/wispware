@@ -11,7 +11,7 @@ class ConsumptionLogChart extends ChartWidget
     protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = 'Su consumo de datos:';
     public float $intervalConsumption = 0;
-    public ?string $filter='2';
+    public ?string $filter='1';
 
     protected function getData(): array
     {
@@ -23,6 +23,7 @@ class ConsumptionLogChart extends ChartWidget
         $logs = ConsumptionLog::query()
             ->where('queue_name',$queueName)
             ->whereDate('recorded_at', '>=', now()->subDays((int) $this->filter))
+            //->whereRaw('MOD(id, 10) = 1')
             ->orderBy('recorded_at','asc')
             ->get();
 
@@ -44,7 +45,7 @@ class ConsumptionLogChart extends ChartWidget
             ],
             'labels' => $logs->map(function ($log){
                 return $log->recorded_at
-                    //->setTimezone('America/Mexico_City')
+                    ->setTimezone('America/Mexico_City')
                     ->format('d/m H:i');
             })->toArray(),
         ];
@@ -58,10 +59,11 @@ class ConsumptionLogChart extends ChartWidget
     protected function getFilters():array
     {
         return [
-            '2' => 'Last two days',
-            '7' => 'This week',
-            '30' => 'This month',   // Siguiente funcionalidad: Agregar filtros por mes, ene, feb, mar, etc.
-        ];
+            '1' => 'Today',
+            '2' => 'Last 2 days',
+            '3' => 'Last 3 days',   // Siguiente funcionalidad: Agregar filtros por mes, ene, feb, mar, etc.
+            '7' => 'Last week'
+            ];
     }
 
     public function getDescription(): ?string
