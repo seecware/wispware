@@ -37,12 +37,16 @@ class ConsumptionLogChart extends ChartWidget
         $data = $logs->pluck('consumption_gb')->toArray();
         return [
             'datasets' => [
-                [
-                    'label' => 'Consumo (GigaBytes)',
-                    'data' => $data,
-                    'borderColor'=>'#10B981',
-                ],
-            ],
+        [
+            'label' => 'Consumo (GigaBytes)',
+            'pointRadius' => '0',
+            'data' => $data,
+            'borderColor' => '#10B981', // Verde
+            'backgroundColor' => 'rgba(16, 185, 129, 0.2)', // Mismo verde con 20% de opacidad
+            'fill' => true, // Habilita el relleno debajo de la línea
+            'cubicInterpolationMode' => 'monotone', // Suaviza la línea suavemente sin distorsionar los picos
+        ],
+    ],
             'labels' => $logs->map(function ($log){
                 return $log->recorded_at
                     ->setTimezone('America/Mexico_City')
