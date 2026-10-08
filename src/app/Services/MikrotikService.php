@@ -85,7 +85,8 @@ public function addBridgeFilterMark(string $mac, string $comment, string $packet
         $macLimpia .= '/FF:FF:FF:FF:FF:FF';
     }
 
-    $query = (new Query('/interface/bridge/filter/add'))
+    // Filtro 1: Descarga / Bajada (dst-mac-address)
+    $queryDst = (new Query('/interface/bridge/filter/add'))
         ->equal('chain', 'forward')
         ->equal('dst-mac-address', $macLimpia)
         ->equal('action', 'mark-packet')
@@ -93,7 +94,23 @@ public function addBridgeFilterMark(string $mac, string $comment, string $packet
         ->equal('passthrough', 'yes')
         ->equal('comment', trim($comment));
 
-    return $this->client->query($query)->read();
+    $responseDst = $this->client->query($queryDst)->read();
+
+    // Filtro 2: Subida (src-mac-address)
+    $querySrc = (new Query('/interface/bridge/filter/add'))
+        ->equal('chain', 'forward')
+        ->equal('src-mac-address', $macLimpia)
+        ->equal('action', 'mark-packet')
+        ->equal('new-packet-mark', 'SUBIDA')
+        ->equal('passthrough', 'yes')
+        ->equal('comment', trim($comment));
+
+    $responseSrc = $this->client->query($querySrc)->read();
+
+    return [
+        'dst' => $responseDst,
+        'src' => $responseSrc,
+    ];
 }
 
 public function existsMacInBridgeFilter(string $mac): bool
