@@ -150,4 +150,11 @@ public function getQueueTrees(): array
     return $this->client->query($query)->read();
 }
 
+public function resetQueueTrees(): void
+{
+    $this->connect();
+    $query = new Query('/queue/tree/reset-counters-all');
+    $this->client->query($query)->read();
+}
+
 }

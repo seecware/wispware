@@ -11,11 +11,12 @@ use Throwable;
 class FetchMikrotikQueueMetrics extends Command
 {
     protected $signature = 'mikrotik:fetch-queues';
-    protected $description = 'Obtiene los Gigas acumulados del comentario en Queue Tree de MikroTik';
+    protected $description = 'Obtiene los bytes acumulados de Queue Tree en MikroTik y reinicia contadores';
 
     public function handle(MikrotikService $mikrotikService): int
     {
         try {
+            // 1. Obtenemos las colas (con sus bytes actuales)
             $queues = $mikrotikService->getQueueTrees();
 
             if (empty($queues)) {
@@ -28,18 +29,17 @@ class FetchMikrotikQueueMetrics extends Command
 
             foreach ($queues as $queue) {
                 $name = $queue['name'] ?? null;
-                $comment = $queue['comment'] ?? null;
+                
+                // RouterOS devuelve los bytes como string numérico (ej. "536870916000")
+                $bytes = isset($queue['bytes']) ? (int) $queue['bytes'] : 0;
 
                 if (!$name) {
                     continue;
                 }
 
-                // Extraemos el valor del comentario (ej. "20.018687154")
-                $gbAccumulated = (float) trim((string) $comment);
-
                 $records[] = [
                     'queue_name'     => $name,
-                    'consumption_gb' => round($gbAccumulated, 4),
+                    'consumption_bytes' => $bytes, // Guardamos la verdad absoluta en bytes
                     'recorded_at'    => $now,
                     'created_at'     => $now,
                     'updated_at'     => $now,
@@ -48,8 +48,11 @@ class FetchMikrotikQueueMetrics extends Command
 
             if (!empty($records)) {
                 ConsumptionLog::insert($records);
-                $this->info("Se registraron " . count($records) . " colas correctamente.");
+                $this->info("Se registraron " . count($records) . " colas correctamente en bytes.");
             }
+
+            // 2. Limpiamos los contadores en MikroTik para el siguiente ciclo
+            $mikrotikService->resetQueueTrees();
 
         } catch (Throwable $e) {
             Log::error("Error consultando MikroTik Queue Trees: " . $e->getMessage());
