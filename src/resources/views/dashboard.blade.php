@@ -12,6 +12,7 @@
                     {{ __("Bienvenido!") }}
                 </div>
             </div>
+            <br>
             @livewire(\App\Filament\Widgets\ConsumptionLogChart::class)
         </div>
     </div>

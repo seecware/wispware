@@ -12,8 +12,8 @@ class ConsumptionLogChart extends ChartWidget
     protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = 'Su consumo de datos:';
     public float $intervalConsumption = 0;
-    public ?string $filter = '1';
-    public float $max_data = 1;
+    public ?string $filter = '30';
+    public float $max_data = 4;
 
     protected function getData(): array
     {
@@ -28,7 +28,8 @@ class ConsumptionLogChart extends ChartWidget
             ->orderBy('recorded_at', 'asc')
             ->get();
 
-        $this->max_data = $logs->max('consumption_bytes');
+        $max_bytes = $logs->max('consumption_bytes');
+        $this->max_data = $max_bytes != null ? $max_bytes/1073741824 : 1;
         $totalBytes = $logs->sum('consumption_bytes')/1073741824;
         $this->intervalConsumption = $totalBytes;
         // 2. Mapeamos la colección de logs convirtiendo cada registro de bytes a GB
@@ -70,7 +71,7 @@ class ConsumptionLogChart extends ChartWidget
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 0.2, // Mantiene la escala de 300 GB exacta
+                    max: $this->max_data, // Mantiene la escala de 300 GB exacta
                 }
             },
             plugins: {
@@ -127,7 +128,7 @@ class ConsumptionLogChart extends ChartWidget
             '1' => 'Today',
             '2' => 'Last 2 days',
             '3' => 'Last 3 days',
-            '7' => 'Last week'
+            '30' => 'Last week'
         ];
     }
 
