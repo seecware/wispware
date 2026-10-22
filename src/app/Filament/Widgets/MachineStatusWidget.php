@@ -40,6 +40,7 @@ class MachineStatusWidget extends ChartWidget
         ];
 
         $query = ConsumptionLog::query();
+        $query->where('recorded_at', '>=', now()->subHours(24));
 
         if ($this->filter === 'all_without_download') {
             $query->where('queue_name', '!=', 'Download');
