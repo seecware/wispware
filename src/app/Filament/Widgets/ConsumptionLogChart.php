@@ -127,8 +127,9 @@ class ConsumptionLogChart extends ChartWidget
         return [
             '1' => 'Today',
             '2' => 'Last 2 days',
-            '3' => 'Last 3 days',
-            '30' => 'Last week'
+            '7' => 'Last week',
+            '15' => 'Last 15 days',
+            '30' => 'Last month'
         ];
     }
 

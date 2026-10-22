@@ -12,6 +12,8 @@ class MachineStatusWidget extends ChartWidget
     protected int | string | array $columnSpan = 'full';
 
     public ?string $filter = 'all';
+    
+    public float $max_y = 0.5;
 
     protected function getFilters(): ?array
     {
@@ -46,16 +48,20 @@ class MachineStatusWidget extends ChartWidget
         }
 
         $allLogs = $query->orderBy('recorded_at')
-                        ->whereRaw('MOD(id, 100) < 10')
                         ->get();
+
 
         if ($allLogs->isEmpty()) {
             return ['datasets' => []];
         }
 
+        //dd($this->max_y);
+
         $groupedLogs = $allLogs->groupBy('queue_name');
         $datasets = [];
         $colorIndex = 0;
+
+        $this->max_y = $allLogs->max('consumption_bytes')/1073741824;
 
         foreach ($groupedLogs as $queueName => $queueLogs) {
             $color = $colors[$colorIndex % count($colors)];
@@ -65,7 +71,7 @@ class MachineStatusWidget extends ChartWidget
             $dataPoints = $queueLogs->map(function ($log) use ($userTimezone) {
                 return [
                     'x' => $log->recorded_at->clone()->setTimezone($userTimezone)->toIso8601String(),
-                    'y' => (float) $log->consumption_gb,
+                    'y' => (float) $log->consumption_bytes/1073741824,
                 ];
             })->values()->toArray();
 
@@ -93,7 +99,7 @@ class MachineStatusWidget extends ChartWidget
 
     protected function getType(): string
     {
-        return 'line';
+        return 'bar';
     }
 
     protected function getOptions(): array
