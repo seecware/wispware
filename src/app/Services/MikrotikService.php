@@ -157,4 +157,54 @@ public function resetQueueTrees(): void
     $this->client->query($query)->read();
 }
 
+public function getInterfaces(): array
+{
+    $this->connect();
+
+    $interfaces = $this->client
+        ->query(new Query('/interface/ethernet/print'))
+        ->read();
+
+    foreach ($interfaces as &$interface) {
+
+        $enabled = !in_array(
+            strtolower((string) ($interface['disabled'] ?? 'false')),
+            ['true', 'yes', '1'],
+            true
+        );
+
+        $interface['enabled'] = $enabled;
+
+        $interface['connected'] = false;
+        $interface['speed'] = null;
+        $interface['full_duplex'] = false;
+
+        if (!$enabled) {
+            continue;
+        }
+
+        $query = (new Query('/interface/ethernet/monitor'))
+            ->equal('numbers', $interface['name'])
+            ->equal('once');
+
+        $status = $this->client->query($query)->read()[0] ?? [];
+
+        $interface['connected'] =
+            ($status['status'] ?? '') === 'link-ok';
+
+        $interface['speed'] =
+            $status['rate'] ?? null;
+
+        $interface['full_duplex'] = in_array(
+            strtolower((string) ($status['full-duplex'] ?? 'false')),
+            ['true', 'yes', '1'],
+            true
+        );
+    }
+
+    unset($interface);
+
+    return $interfaces;
+}
+
 }

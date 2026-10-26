@@ -14,6 +14,7 @@ class ConsumptionLogChart extends ChartWidget
     public float $intervalConsumption = 0;
     public ?string $filter = '30';
     public float $max_data = 4;
+    protected static ?int $sort = 2;
 
     protected function getData(): array
     {

@@ -15,6 +15,8 @@ class MachineStatusWidget extends ChartWidget
     
     public float $max_y = 0.5;
 
+    protected static ?int $sort = 3;
+
     protected function getFilters(): ?array
     {
         $queues = ConsumptionLog::query()
