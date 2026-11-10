@@ -10,6 +10,7 @@ class ConsumptionLog extends Model
         'queue_name',
         'consumption_gb',
         'recorded_at',
+        'isp_mac_origin',
     ];
 
     protected $casts = [

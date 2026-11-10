@@ -11,16 +11,20 @@ use Throwable;
 class FetchMikrotikQueueMetrics extends Command
 {
     protected $signature = 'mikrotik:fetch-queues';
-    protected $description = 'Obtiene los bytes acumulados de Queue Tree en MikroTik y reinicia contadores';
+
+    protected $description = 'Obtiene los bytes de Queue Tree, identifica el ISP y reinicia contadores';
 
     public function handle(MikrotikService $mikrotikService): int
     {
         try {
-            // 1. Obtenemos las colas (con sus bytes actuales)
+            // 1. Obtener MAC del ISP (null si hay 0 o varias)
+            $ispMacOrigin = $mikrotikService->getIspMacOrigin();
+
+            // 2. Obtener Queue Trees
             $queues = $mikrotikService->getQueueTrees();
 
             if (empty($queues)) {
-                $this->warn('No se encontraron Queue Trees en el MikroTik.');
+                $this->warn('No se encontraron Queue Trees.');
                 return Command::SUCCESS;
             }
 
@@ -29,34 +33,48 @@ class FetchMikrotikQueueMetrics extends Command
 
             foreach ($queues as $queue) {
                 $name = $queue['name'] ?? null;
-                
-                // RouterOS devuelve los bytes como string numérico (ej. "536870916000")
-                $bytes = isset($queue['bytes']) ? (int) $queue['bytes'] : 0;
+
+                $bytes = isset($queue['bytes'])
+                    ? (int) $queue['bytes']
+                    : 0;
 
                 if (!$name) {
                     continue;
                 }
 
                 $records[] = [
-                    'queue_name'     => $name,
-                    'consumption_bytes' => $bytes, // Guardamos la verdad absoluta en bytes
-                    'recorded_at'    => $now,
-                    'created_at'     => $now,
-                    'updated_at'     => $now,
+                    'queue_name' => $name,
+                    'consumption_bytes' => $bytes,
+                    'recorded_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                    'isp_mac_origin' => $ispMacOrigin,
                 ];
             }
 
+            // 3. Guardar registros
             if (!empty($records)) {
                 ConsumptionLog::insert($records);
-                $this->info("Se registraron " . count($records) . " colas correctamente en bytes.");
+
+                $this->info(
+                    'Se registraron ' . count($records) .
+                    ' colas. ISP MAC: ' . ($ispMacOrigin ?? 'NULL')
+                );
+
+                // 4. Reiniciar contadores
+                $mikrotikService->resetQueueTrees();
             }
 
-            // 2. Limpiamos los contadores en MikroTik para el siguiente ciclo
-            $mikrotikService->resetQueueTrees();
-
         } catch (Throwable $e) {
-            Log::error("Error consultando MikroTik Queue Trees: " . $e->getMessage());
-            $this->error("Falló la recolección: " . $e->getMessage());
+            Log::error(
+                'Error consultando MikroTik Queue Trees: ' .
+                $e->getMessage()
+            );
+
+            $this->error(
+                'Falló la recolección: ' . $e->getMessage()
+            );
+
             return Command::FAILURE;
         }
 

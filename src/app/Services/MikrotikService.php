@@ -207,4 +207,22 @@ public function getInterfaces(): array
     return $interfaces;
 }
 
+
+public function getIspMacOrigin(): ?string
+{
+    $this->connect();
+
+    $query = (new Query('/interface/bridge/host/print'))
+        ->where('on-interface', 'ether1');
+
+    $hosts = $this->client->query($query)->read();
+
+    $macs = array_values(array_unique(array_filter(
+        array_column($hosts, 'mac-address')
+    )));
+
+    return count($macs) === 1 ? $macs[0] : null;
+}
+
+
 }
